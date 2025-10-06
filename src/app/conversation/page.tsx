@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, Check } from "lucide-react";
 import Sidebar from "../chat/components/Sidebar";
@@ -44,94 +44,100 @@ const ConversationContent = () => {
     if (!messageToSend.trim()) return;
 
     const userMessage = messageToSend.trim();
-    
+
     // Generate unique IDs using timestamp + random
     const userMsgId = Date.now();
     const loadingMsgId = Date.now() + 1;
-    
+
     // Add user message immediately
     const userMsg: Message = {
       id: userMsgId,
       role: "user",
       content: userMessage,
     };
-    
+
     // Add loading message
     const loadingMessage: Message = {
       id: loadingMsgId,
       role: "assistant",
       content: "Thinking...",
     };
-    
+
     setMessages((prev) => [...prev, userMsg, loadingMessage]);
 
     try {
       // Get current messages for conversation history (excluding the loading message we just added)
       setMessages((prevMessages) => {
-        const messagesForHistory = prevMessages.filter(msg => msg.id !== loadingMsgId);
-        
+        const messagesForHistory = prevMessages.filter(
+          (msg) => msg.id !== loadingMsgId
+        );
+
         // Prepare conversation history
-        const conversationHistory = messagesForHistory.map(msg => ({
+        const conversationHistory = messagesForHistory.map((msg) => ({
           role: msg.role,
-          content: msg.content
+          content: msg.content,
         }));
-        
+
         // Make API call
-        fetch('/api/chat', {
-          method: 'POST',
+        fetch("/api/chat", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             message: userMessage,
-            conversationHistory: conversationHistory
+            conversationHistory: conversationHistory,
           }),
         })
-        .then(async (response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          
-          if (data.success) {
-            // Replace loading message with actual response
-            setMessages((prev) => 
-              prev.map((msg) => 
-                msg.id === loadingMsgId 
-                  ? { ...msg, content: data.message }
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Replace loading message with actual response
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === loadingMsgId
+                    ? { ...msg, content: data.message }
+                    : msg
+                )
+              );
+            } else {
+              throw new Error(data.error || "Unknown error occurred");
+            }
+          })
+          .catch((error) => {
+            console.error("Error sending message:", error);
+
+            // Replace loading message with error message
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === loadingMsgId
+                  ? {
+                      ...msg,
+                      content: `Sorry, I encountered an error: ${
+                        error instanceof Error ? error.message : "Unknown error"
+                      }`,
+                    }
                   : msg
               )
             );
-          } else {
-            throw new Error(data.error || 'Unknown error occurred');
-          }
-        })
-        .catch((error) => {
-          console.error('Error sending message:', error);
-          
-          // Replace loading message with error message
-          setMessages((prev) => 
-            prev.map((msg) => 
-              msg.id === loadingMsgId 
-                ? { ...msg, content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}` }
-                : msg
-            )
-          );
-        });
-        
+          });
+
         return prevMessages;
       });
-      
     } catch (error) {
-      console.error('Error in handleSendMessage:', error);
+      console.error("Error in handleSendMessage:", error);
     }
   };
 
   useEffect(() => {
     const sessionId = searchParams.get("session");
     const initialMessage = searchParams.get("msg");
-    
+
     if (sessionId) {
       const sessionChats = chats.filter(
         (chat) => chat.session_id === sessionId
@@ -142,7 +148,7 @@ const ConversationContent = () => {
         content: chat.content,
       }));
       setMessages(formattedMessages);
-      setMessageIdCounter(Math.max(...formattedMessages.map(m => m.id)) + 1);
+      setMessageIdCounter(Math.max(...formattedMessages.map((m) => m.id)) + 1);
     } else if (initialMessage && !hasProcessedInitialMessage.current) {
       // Handle initial message from URL parameter (only once)
       setMessages([
@@ -154,7 +160,7 @@ const ConversationContent = () => {
       ]);
       setMessageIdCounter(Date.now() + 1);
       hasProcessedInitialMessage.current = true;
-      
+
       // Automatically send the initial message
       setInputValue(initialMessage);
       setTimeout(() => {
@@ -203,7 +209,7 @@ const ConversationContent = () => {
 
   const handleSend = async () => {
     if (!inputValue.trim()) return;
-    
+
     const messageToSend = inputValue.trim();
     setInputValue("");
     await handleSendMessage(messageToSend);
@@ -485,7 +491,13 @@ const ConversationContent = () => {
 
 const ConversationPage = () => {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <ConversationContent />
     </Suspense>
   );

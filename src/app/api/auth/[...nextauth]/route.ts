@@ -10,35 +10,35 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         // Check if Supabase is configured
-        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        if (
+          !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+          !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        ) {
           return true;
         }
 
         try {
-          
           // Save user to Supabase
           const { data: existingUser } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', user.email)
+            .from("users")
+            .select("*")
+            .eq("email", user.email)
             .single();
 
           if (!existingUser) {
-            const { error } = await supabase
-              .from('users')
-              .insert({
-                email: user.email,
-                name: user.name,
-                // TODO: Add profile pic support later
-                // profile_pic_url: user.image,
-                // provider: account.provider,
-                // provider_id: account.providerAccountId,
-              });
+            const { error } = await supabase.from("users").insert({
+              email: user.email,
+              name: user.name,
+              // TODO: Add profile pic support later
+              // profile_pic_url: user.image,
+              // provider: account.provider,
+              // provider_id: account.providerAccountId,
+            });
 
             if (error) {
               return true;
@@ -46,14 +46,14 @@ const handler = NextAuth({
           } else {
             // Update existing user info
             const { error } = await supabase
-              .from('users')
+              .from("users")
               .update({
                 name: user.name,
                 // TODO: Add profile pic support later
                 // profile_pic_url: user.image,
                 // last_login: new Date().toISOString(),
               })
-              .eq('email', user.email);
+              .eq("email", user.email);
           }
         } catch (error) {
           return true;
