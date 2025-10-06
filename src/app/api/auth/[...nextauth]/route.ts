@@ -34,10 +34,6 @@ const handler = NextAuth({
             const { error } = await supabase.from("users").insert({
               email: user.email,
               name: user.name,
-              // TODO: Add profile pic support later
-              // profile_pic_url: user.image,
-              // provider: account.provider,
-              // provider_id: account.providerAccountId,
             });
 
             if (error) {
@@ -49,9 +45,6 @@ const handler = NextAuth({
               .from("users")
               .update({
                 name: user.name,
-                // TODO: Add profile pic support later
-                // profile_pic_url: user.image,
-                // last_login: new Date().toISOString(),
               })
               .eq("email", user.email);
           }

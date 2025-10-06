@@ -19,11 +19,17 @@ export async function POST(request: NextRequest) {
 
     // Create conversation context from history
     let conversationContext = "";
+    interface ConversationMessage {
+      role: "user" | "assistant";
+      content: string;
+    }
+
+
     if (conversationHistory && conversationHistory.length > 0) {
       conversationContext =
         conversationHistory
           .map(
-            (msg) =>
+            (msg: ConversationMessage): string =>
               `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
           )
           .join("\n") + "\n\n";
