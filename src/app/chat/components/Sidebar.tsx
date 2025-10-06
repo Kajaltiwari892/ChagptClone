@@ -3,9 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import ChatListItem from "./ChatListItem";
 import { sessions } from "@/constant/dummy";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, User } from "lucide-react";
 
 interface SidebarProps {
   isMobileOpen: boolean;
@@ -206,54 +215,100 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             </div>
 
             {/* BOTTOM USER AREA */}
-            <div className="mt-auto p-4 border-t rounded-md cursor-pointer hover:bg-[#242424] border-white/6">
-              <div
-                className={`flex items-center gap-3 ${
-                  collapsedActive ? "flex-col" : "justify-between"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-white font-semibold text-sm">
-                    KA
-                  </div>
-
-                  {!collapsedActive && (
-                    <div className="flex flex-col">
-                      <div className="text-sm font-semibold">
-                        {session?.user?.name || "User"}
+            <div className="mt-auto p-4 border-t border-white/6">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center justify-between p-2 rounded-md hover:bg-white/5 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#353535] flex items-center justify-center text-white font-semibold text-sm">
+                        {session?.user?.name?.[0] || "U"}
                       </div>
-                      <div className="text-xs text-gray-400">Free</div>
+                      {!collapsedActive && (
+                        <div className="flex flex-col">
+                          <div className="text-sm font-semibold">
+                            {session?.user?.name || "User"}
+                          </div>
+                          <div className="text-xs text-gray-400">Free</div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                {!collapsedActive ? (
-                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-[#212121] border border-[#3A3A4D] text-white text-xs font-medium hover:opacity-90 transition-opacity">
-                    Upgrade
-                  </button>
-                ) : (
-                  <button
-                    className="p-1.5 rounded hover:bg-white/6 transition-colors group relative"
-                    title="Upgrade plan"
-                  >
+                    {!collapsedActive ? (
+                      <button className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-[#212121] border border-[#3A3A4D] text-white text-xs font-medium hover:opacity-90 transition-opacity">
+                        Upgrade
+                      </button>
+                    ) : (
+                      <button className="p-1.5 rounded hover:bg-white/6 transition-colors group relative">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-white"
+                          aria-hidden="true"
+                        >
+                          <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-64 bg-[#212121] border border-white/10 text-white"
+                  side="top"
+                  align="start"
+                  sideOffset={10}
+                >
+                  <DropdownMenuLabel className="text-white">
+                    My Account
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">
+                        {session?.user?.name || "User"}
+                      </p>
+                      <p className="text-xs text-white/60">
+                        {session?.user?.email || "user@example.com"}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem className="cursor-pointer hover:bg-white/10 focus:bg-white/10">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer hover:bg-white/10 focus:bg-white/10">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
+                      width="16"
+                      height="16"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-white"
-                      aria-hidden="true"
+                      className="mr-2 h-4 w-4"
                     >
-                      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
                     </svg>
-                  </button>
-                )}
-              </div>
+                    <span>Upgrade to Plus</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="text-red-500 hover:bg-white/10 hover:text-red-500 focus:bg-white/10 focus:text-red-500 cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </>
         )}
