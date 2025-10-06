@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       conversationContext =
         conversationHistory
           .map(
-            (msg: any) =>
+            (msg) =>
               `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
           )
           .join("\n") + "\n\n";
