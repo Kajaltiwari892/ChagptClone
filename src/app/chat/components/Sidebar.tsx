@@ -192,19 +192,21 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
                 <nav className="mt-2 space-y-2 overflow-y-auto flex-1">
                   {chats.map((s) => (
-                  <ChatListItem
-                    key={s.id}
-                    title={s.title}
-                    collapsed={collapsedActive}
-                    onClick={() => router.push(`/conversation?session=${s.id}`)}
-                  />
+                    <ChatListItem
+                      key={s.id}
+                      title={s.title}
+                      collapsed={collapsedActive}
+                      onClick={() =>
+                        router.push(`/conversation?session=${s.id}`)
+                      }
+                    />
                   ))}
                 </nav>
               </div>
             </div>
 
             {/* BOTTOM USER AREA */}
-            <div className="mt-auto p-4 border-t border-white/6">
+            <div className="mt-auto p-4 border-t rounded-md cursor-pointer hover:bg-[#242424] border-white/6">
               <div
                 className={`flex items-center gap-3 ${
                   collapsedActive ? "flex-col" : "justify-between"
@@ -217,7 +219,9 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
                   {!collapsedActive && (
                     <div className="flex flex-col">
-                      <div className="text-sm font-semibold">{session?.user?.name || 'User'}</div>
+                      <div className="text-sm font-semibold">
+                        {session?.user?.name || "User"}
+                      </div>
                       <div className="text-xs text-gray-400">Free</div>
                     </div>
                   )}
