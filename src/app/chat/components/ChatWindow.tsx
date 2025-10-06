@@ -81,6 +81,7 @@ const ChatWindow = () => {
                   router.push(
                     `/conversation?msg=${encodeURIComponent(inputValue.trim())}`
                   );
+                  setInputValue("");
                 }
               }}
             />
@@ -103,6 +104,7 @@ const ChatWindow = () => {
                         inputValue.trim()
                       )}`
                     );
+                    setInputValue("");
                   }
                 }}
               >
